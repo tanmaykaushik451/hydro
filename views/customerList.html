@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add New Invoice</title>
+  <!-- <link rel="stylesheet" href="/css/styles.css"> -->
+  <style>
+    /* CSS styles for the customer list */
+    .customer-list {
+      list-style-type: none;
+      padding: 0;
+    }
+    .customer-item {
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+    .customer-item h3 {
+      margin: 0;
+    }
+    .customer-item p {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Add New Invoice</h1>
+  
+  <!-- Display the list of customers -->
+  <h2>Customers</h2>
+  <ul class="customer-list" id="customer-list">
+    <!-- Customer items will be added dynamically here -->
+  </ul>
+
+  <form id="invoice-form">
+    <!-- Invoice form fields go here -->
+    <button type="submit">Submit</button>
+  </form>
+  <!-- <script src="/js/script.js"></script> -->
+  <script>
+    // Fetch data from the API endpoint
+    fetch('http://localhost:3000/api/customers')
+      .then(response => response.json())
+      .then(data => {
+        // Process the fetched data and dynamically create HTML for each customer
+        const customerList = document.getElementById('customer-list');
+        data.forEach(customer => {
+          const customerItem = document.createElement('li');
+          customerItem.classList.add('customer-item');
+          customerItem.innerHTML = `
+            <h3>${customer.name}</h3>
+            <p>Email: ${customer.email}</p>
+            <p>Phone: ${customer.phone}</p>
+          `;
+          customerList.appendChild(customerItem);
+        });
+      })
+      .catch(error => console.error('Error fetching customers:', error));
+  </script>
+</body>
+</html>
