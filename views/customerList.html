@@ -14,6 +14,7 @@
       margin-bottom: 10px;
       padding: 10px;
       border: 1px solid #ccc;
+      cursor: pointer; /* Add cursor pointer for better UX */
     }
     .customer-item h3 {
       margin: 0;
@@ -21,28 +22,76 @@
     .customer-item p {
       margin: 5px 0;
     }
+    .customer-item.active {
+      background-color: lightblue; /* Add background color to indicate selection */
+    }
+    /* CSS styles for the invoices table */
+    .invoice-table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    .invoice-table th, .invoice-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    .invoice-table th {
+      background-color: #f2f2f2;
+    }
   </style>
 </head>
-<body>
-  <h1>Add New Invoice</h1>
-  
+<body>  
   <!-- Display the list of customers -->
   <h2>Customers</h2>
   <ul class="customer-list" id="customer-list">
     <!-- Customer items will be added dynamically here -->
   </ul>
 
-  <form id="invoice-form">
-    <!-- Invoice form fields go here -->
-    <button type="submit">Submit</button>
-  </form>
+  <!-- Table to display invoices -->
+  <h2>Invoices</h2>
+  <table class="invoice-table" id="invoice-table">
+    <thead>
+      <tr>
+        <th>Invoice ID</th>
+        <th>Amount</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody id="invoice-table-body">
+      <!-- Invoice rows will be added dynamically here -->
+    </tbody>
+  </table>
+
   <!-- <script src="/js/script.js"></script> -->
   <script>
-    // Fetch data from the API endpoint
+    // Function to fetch invoices for a customer
+    function fetchInvoices(customerId) {
+      fetch(`http://localhost:3000/api/invoices/customer/${customerId}`)
+        .then(response => response.json())
+        .then(invoices => {
+          // Display invoices in the console for demonstration
+          console.log('Invoices:', invoices);
+          // Clear previous invoice table rows
+          const invoiceTableBody = document.getElementById('invoice-table-body');
+          invoiceTableBody.innerHTML = '';
+          // Add new invoice table rows
+          invoices.forEach(invoice => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${invoice.invoice_id}</td>
+              <td>${invoice.amount}</td>
+              <td>${invoice.date}</td>
+            `;
+            invoiceTableBody.appendChild(row);
+          });
+        })
+        .catch(error => console.error('Error fetching invoices:', error));
+    }
+
+    // Fetch data from the API endpoint and handle click event
     fetch('http://localhost:3000/api/customers')
       .then(response => response.json())
       .then(data => {
-        // Process the fetched data and dynamically create HTML for each customer
         const customerList = document.getElementById('customer-list');
         data.forEach(customer => {
           const customerItem = document.createElement('li');
@@ -52,6 +101,17 @@
             <p>Email: ${customer.email}</p>
             <p>Phone: ${customer.phone}</p>
           `;
+          // Add click event listener to each customer item
+          customerItem.addEventListener('click', () => {
+            // Remove 'active' class from all customer items
+            document.querySelectorAll('.customer-item').forEach(item => {
+              item.classList.remove('active');
+            });
+            // Add 'active' class to the clicked customer item
+            customerItem.classList.add('active');
+            // Fetch invoices for the clicked customer
+            fetchInvoices(customer.customer_id); // Assuming customer_id is used to uniquely identify customers
+          });
           customerList.appendChild(customerItem);
         });
       })

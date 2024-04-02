@@ -10,4 +10,12 @@ router.post('/invoices', (req, res) => {
   });
 });
 
+router.get('/invoices/customer/:customerId', (req, res) => {
+    const customerId = req.params.customerId;
+    Invoice.getInvoicesByCustomer(customerId, invoices => {
+      res.json(invoices);
+    });
+  });
+  
+
 module.exports = router;
